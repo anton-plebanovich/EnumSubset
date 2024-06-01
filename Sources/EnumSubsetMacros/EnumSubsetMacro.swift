@@ -29,9 +29,7 @@ public struct EnumSubset: MemberMacro {
             .attributeName.as(IdentifierTypeSyntax.self)?
             .genericArgumentClause?
             .arguments.first?
-            .argument.as(IdentifierTypeSyntax.self)?
-            .name
-            .text else {
+            .description else {
             
             context.diagnose(
                 Diagnostic(
@@ -46,7 +44,8 @@ public struct EnumSubset: MemberMacro {
             return []
         }
         
-        let supersetTypeVariableName = supersetType.prefix(1).localizedLowercase + supersetType.dropFirst()
+        let supersetMemberType = supersetType.components(separatedBy: ".").last!
+        let supersetTypeVariableName = supersetMemberType.prefix(1).localizedLowercase + supersetMemberType.dropFirst()
         
 //        let enumName = enumDeclSyntax.name.trimmed
         let members = enumDeclSyntax.memberBlock.members

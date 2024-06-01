@@ -62,7 +62,57 @@ final class EnumSubsetTests: XCTestCase {
 #endif
     }
     
+    func testMacroComposedSupersetType() throws {
+#if canImport(EnumSubsetMacros)
+        assertMacroExpansion(
+            """
+            @EnumSubset<Namespace.Database>
+            enum SupportedDatabase: String, CaseIterable {
+                case divtrackerV2
+                case eod
+                case fmp
+            }
+            """,
+            expandedSource: """
+            enum SupportedDatabase: String, CaseIterable {
+                case divtrackerV2
+                case eod
+                case fmp
+            
+                var asSuperset: Namespace.Database {
+                    switch self {
+                    case .divtrackerV2:
+                        return .divtrackerV2
+                    case .eod:
+                        return .eod
+                    case .fmp:
+                        return .fmp
+                    }
+                }
+            
+                init?(_ database: Namespace.Database) {
+                    switch database {
+                    case .divtrackerV2:
+                        self = .divtrackerV2
+                    case .eod:
+                        self = .eod
+                    case .fmp:
+                        self = .fmp
+                    default:
+                        return nil
+                    }
+                }
+            }
+            """,
+            macros: testMacros
+        )
+#else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+#endif
+    }
+    
     func testSlopeSubsetOnStruct() throws {
+#if canImport(EnumSubsetMacros)
         assertMacroExpansion(
             """
             @EnumSubset<Database>
@@ -76,9 +126,13 @@ final class EnumSubsetTests: XCTestCase {
             ],
             macros: testMacros
         )
+#else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+#endif
     }
     
     func testSlopeSubsetOnNongeneric() throws {
+#if canImport(EnumSubsetMacros)
         assertMacroExpansion(
             """
             @EnumSubset
@@ -92,5 +146,8 @@ final class EnumSubsetTests: XCTestCase {
             ],
             macros: testMacros
         )
+#else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+#endif
     }
 }
